@@ -278,6 +278,59 @@ scheduler_events = {
 4. **Resource Limits**: No limits on tenant provisioning rate
 5. **CSRF**: Disabled in development mode
 
+## Troubleshooting
+
+### ERPNext Module Import Errors
+
+**Error**: `No module named 'erpnext.selling'` or similar module import failures
+
+**Cause**: ERPNext is not properly installed in the Frappe bench. This typically happens when:
+- ERPNext was copied to site-packages instead of being installed via bench
+- The bench doesn't have ERPNext in its apps directory
+- ERPNext installation is incomplete or corrupted
+
+**Solution**:
+
+1. **Verify ERPNext is in the bench apps directory**:
+   ```bash
+   cd /path/to/frappe-bench
+   ls apps/
+   # Should show: frappe, erpnext, saas_platform
+   ```
+
+2. **If ERPNext is missing, install it properly**:
+   ```bash
+   cd /path/to/frappe-bench
+   bench get-app erpnext --branch version-15
+   bench --site [your-site] install-app erpnext
+   ```
+
+3. **If ERPNext exists but has import errors, reinstall**:
+   ```bash
+   cd /path/to/frappe-bench
+   bench --site [your-site] uninstall-app erpnext
+   rm -rf apps/erpnext
+   bench get-app erpnext --branch version-15
+   bench --site [your-site] install-app erpnext
+   ```
+
+4. **After fixing, restart bench**:
+   ```bash
+   bench restart
+   ```
+
+**Important**: ERPNext must be installed in the bench apps directory (`/path/to/frappe-bench/apps/erpnext`), not in the Python site-packages. The bench framework handles module loading from the apps directory.
+
+### Site Provisioning Failures
+
+**Issue**: New tenant sites fail to provision or are incomplete
+
+**Checks**:
+1. Verify bench has all required apps installed
+2. Check bench logs: `tail -f /path/to/frappe-bench/logs/web.error.log`
+3. Ensure MariaDB/PostgreSQL database has sufficient permissions
+4. Verify disk space and resource availability
+
 ## Summary
 
 This Frappe SaaS Platform is a **trial management system** with **basic subscription tracking**. It automates:
