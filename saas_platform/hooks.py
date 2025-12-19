@@ -97,7 +97,13 @@ app_license = "mit"
 # Name of the app being installed is passed as an argument
 
 # before_app_install = "saas_platform.utils.before_app_install"
+after_install = "saas_platform.utils.tenant.setup_user_tenant"
 after_app_install = "saas_platform.patches.add_tenant_id_to_all_tables.execute"
+# Also ensure setup runs after app install to catch any missed initialization
+after_app_install = [
+    "saas_platform.patches.add_tenant_id_to_all_tables.execute",
+    "saas_platform.utils.tenant.setup_user_tenant"
+]
 
 # Integration Cleanup
 # -------------------

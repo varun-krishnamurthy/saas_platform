@@ -143,3 +143,32 @@ def get_permission_query_conditions(user, doctype):
 
     # User can see their own tenant's data + SYSTEM data
     return f"(`tab{doctype}`.`tenant_id` = '{tenant_id}' OR `tab{doctype}`.`tenant_id` = 'SYSTEM' OR `tab{doctype}`.`tenant_id` IS NULL)"
+
+
+def setup_user_tenant():
+    """Complete setup for user-tenant linking. Adds Custom Field to User and sets Administrator tenant."""
+    # 1. Add Custom Field to User
+    if not frappe.db.exists("Custom Field", "User-tenant_id"):
+        custom_field = frappe.get_doc({
+            "doctype": "Custom Field",
+            "dt": "User",
+            "fieldname": "tenant_id",
+            "fieldtype": "Data",
+            "label": "Tenant ID",
+            "insert_after": "enabled",
+            "read_only": 1,
+            "no_copy": 1,
+            "print_hide": 1,
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "description": "The tenant this user belongs to. SYSTEM = Platform administrator."
+        })
+        custom_field.insert(ignore_permissions=True)
+        frappe.db.commit()
+        frappe.log("Created Custom Field 'tenant_id' for User DocType")
+
+    # 2. Set Administrator tenant_id
+    frappe.db.set_value("User", "Administrator", "tenant_id",
+                        "SYSTEM", update_modified=False)
+    frappe.db.commit()
+    frappe.log("Set Administrator tenant_id = SYSTEM")
