@@ -1,8 +1,8 @@
 app_name = "saas_platform"
 app_title = "Saas Platform"
-app_publisher = "Asofi"
+app_publisher = "Vyogo Technologies PTY Ltd"
 app_description = "Saas Platform"
-app_email = "abdoalsofi576@gmail.com"
+app_email = "dev@vyogo.tech"
 app_license = "mit"
 
 # Apps
@@ -97,7 +97,7 @@ app_license = "mit"
 # Name of the app being installed is passed as an argument
 
 # before_app_install = "saas_platform.utils.before_app_install"
-# after_app_install = "saas_platform.utils.after_app_install"
+after_app_install = "saas_platform.patches.add_tenant_id_to_all_tables.execute"
 
 # Integration Cleanup
 # -------------------
@@ -117,12 +117,13 @@ app_license = "mit"
 # -----------
 # Permissions evaluated in scripted ways
 
+# Apply tenant isolation to ALL DocTypes
 # permission_query_conditions = {
-# 	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
+#     "*": "saas_platform.permissions.get_tenant_query",
 # }
-#
+
 # has_permission = {
-# 	"Event": "frappe.desk.doctype.event.event.has_permission",
+#     "*": "saas_platform.permissions.has_permission",
 # }
 
 # DocType Class
@@ -137,13 +138,20 @@ app_license = "mit"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+# Auto-populate tenant_id on all documents before insert
+doc_events = {
+    "*": {
+        "before_insert": "saas_platform.utils.set_tenant_id",
+    }
+}
+
+# Post-login hook to set tenant_id in session
+on_session_creation = "saas_platform.utils.tenant.on_session_creation"
+
+# # Permission Query - Filter data by tenant_id (except for Administrator)
+permission_query_conditions = {
+    "*": "saas_platform.utils.tenant.get_permission_query_conditions"
+}
 
 # Scheduled Tasks
 # ---------------
@@ -243,4 +251,8 @@ app_license = "mit"
 # }
 
 
-website_route_rules = [{'from_route': '/frontend/<path:app_path>', 'to_route': 'frontend'},]
+website_route_rules = [
+    {'from_route': '/frontend/<path:app_path>', 'to_route': 'frontend'},]
+# Fixtures
+# --------
+# No fixtures needed - using ERPNext's Subscription Plan

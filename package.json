@@ -10,6 +10,6 @@
     "build": "cd frontend && yarn build"
   },
   "keywords": [],
-  "author": "",
+  "author": "Vyogo Technologies PTY Ltd",
   "license": "ISC"
 }

@@ -1,7 +1,7 @@
 [project]
 name = "saas_platform"
 authors = [
-    { name = "Asofi", email = "abdoalsofi576@gmail.com"}
+    { name = "Vyogo Technologies PTY Ltd", email = "dev@vyogo.tech"}
 ]
 description = "Saas Platform"
 requires-python = ">=3.10"
